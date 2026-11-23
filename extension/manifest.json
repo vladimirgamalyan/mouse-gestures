@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Mouse Gestures",
+  "description": "Control the browser with right-button mouse gestures. No network access, no data collection.",
+  "version": "0.1.0",
+  "minimum_chrome_version": "116",
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "default-src 'none'; script-src 'self'"
+  }
+}
