@@ -16,6 +16,9 @@ a spyware module. So this is my own extension: small, transparent and safe.
   menu opens.
 - No context menu appears after a gesture, even if the gesture was not recognized.
 - **Esc** or pressing another mouse button during a gesture cancels it.
+- Gestures work across embedded frames (iframes): you can start over an embedded video
+  or an ad and finish outside it, or the other way round. The trail is drawn over the
+  whole tab, above modal dialogs and fullscreen video too.
 
 ## Gestures
 
@@ -53,7 +56,11 @@ and reload the tabs again.
 - Synthetic events from page scripts are ignored: a site cannot "make a gesture" on your
   behalf, for example to close the tab.
 - No third-party libraries and no code loaded from outside: all of the extension's code is
-  in the `extension` folder (under 400 lines) and can be read in full.
+  in the `extension` folder (under 700 lines) and can be read in full.
+- Embedded frames pass mouse input to the top frame only through the extension's
+  background script, which web pages can neither reach nor forge. A frame uses
+  `window.postMessage` only to find out where it is on the screen: a forged message
+  can at most draw the trail in the wrong place.
 - Manifest V3.
 
 ## Limitations
@@ -65,14 +72,16 @@ and reload the tabs again.
 - Designed for Windows: there the context menu opens when the button is released, so it can
   be cancelled after a gesture. On macOS and Linux the menu opens when the button is pressed,
   so gestures are not supported there yet.
+- The part of a gesture drawn over a frame where Chrome does not let extensions run
+  (for example, an embedded PDF) is not seen.
 
 ## Structure
 
 ```
 extension/
   manifest.json      — extension manifest
-  src/content.js     — gesture recognition, on-screen hint, scrolling
-  src/background.js  — tab actions: back, forward, new, close
+  src/content.js     — gesture recognition across frames, on-screen hint, scrolling
+  src/background.js  — tab actions (back, forward, new, close), input relay from iframes
 tests/
   e2e.test.mjs       — end-to-end tests in a real Chromium
 ```
